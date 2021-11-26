@@ -63,7 +63,7 @@ class IsolatedProlog(pl.Prolog):
     
     def __init__(self, module=None):
         """
-        SimpleProlog constructor. 
+        Create a new prolog instance in it's own module to isolate it from other running prolog code.
         
         Parameters:
         ---
