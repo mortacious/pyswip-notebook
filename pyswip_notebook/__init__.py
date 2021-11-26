@@ -1,0 +1,1 @@
+from .prolog_notebook import IsolatedProlog
