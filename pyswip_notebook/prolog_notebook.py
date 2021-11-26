@@ -87,19 +87,19 @@ class IsolatedProlog(pl.Prolog):
         """
         next(self.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
 
-    def dynamic(cls, term, catcherrors=False):
+    def dynamic(self, term, catcherrors=False):
         """
         call dynamic/1 in the prolog instance
         """
         next(self.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
 
-    def retract(cls, term, catcherrors=False):
+    def retract(self, term, catcherrors=False):
         """
         call retract/1 in the prolog instance
         """
         next(self.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
 
-    def retractall(cls, term, catcherrors=False):
+    def retractall(self, term, catcherrors=False):
         """
         call retractall/1 in the prolog instance
         """
