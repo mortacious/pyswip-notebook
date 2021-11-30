@@ -23,6 +23,33 @@ import pyswip as pl
 import uuid
 import tempfile
 import platform
+from contextlib import contextmanager
+import os
+
+
+@contextmanager
+def temp_file(temp_dir=None):
+    pltfrm = platform.system()
+    if pltfrm == "Windows":
+        # create a temporary file manually and delete it on close
+        if temp_dir is not None:
+            # convert to a raw string for windows
+            temp_dir = temp_dir.encode('unicode-escape').decode().replace('\\\\', '\\')
+        else:
+            temp_dir = ""
+
+        fname = os.path.join(temp_dir, uuid.uuid4().hex)
+        with open(fname, mode='w') as f:
+            yield f
+        # delete the file manually
+        os.remove(fname)
+    else:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.pl') as f:
+            yield f
+
+
+
+
 
 class IsolatedProlog(pl.Prolog):
     """
@@ -129,23 +156,19 @@ class IsolatedProlog(pl.Prolog):
         if file:
             with open(knowledge_base, 'r') as f:
                 knowledge_base = f.read()
+
         pltfrm = platform.system()
-        if pltfrm == "Windows":
-            if temp_dir is not None:
-                # convert to a raw string for windows
-                temp_dir = temp_dir.encode('unicode-escape').decode().replace('\\\\', '\\')
-        else:
-            temp_dir = None
-            
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.pl', dir=temp_dir) as f:
-            f.write(knowledge_base) 
+        with temp_file(temp_dir) as f:
+            f.write(knowledge_base)
+            f.flush()
             f.seek(0)
+
             fname = f.name
             if pltfrm == "Windows":
                 # replace backslash with forward slash because prolog apparently does not like windows paths...
                 fname = fname.replace("\\", "/")
             next(self.query(fname.join(["consult('", "')"]), catcherrors=catcherrors))
-        
+
     def query(self, query, maxresult=-1, catcherrors=True, normalize=True):
         """
         Run a prolog query and return a python-generator.
